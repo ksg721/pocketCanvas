@@ -13,6 +13,20 @@ class DrawingScreen extends StatefulWidget {
 class _DrawingScreenState extends State<DrawingScreen> {
   final List<DrawingStroke> _strokes = [];
   final List<DrawingStroke> _redoStrokes = [];
+  static const _palette = [
+    Color(0xff352f75),
+    Color(0xff1f3a5f),
+    Color(0xff147d92),
+    Color(0xff25855a),
+    Color(0xff8da31f),
+    Color(0xffffb300),
+    Color(0xfff27c38),
+    Color(0xffd94f70),
+    Color(0xff9c4dcc),
+    Color(0xff5f6caf),
+    Color(0xff222222),
+    Color(0xfff7f4ef),
+  ];
   Color _color = const Color(0xff352f75);
   double _width = 8;
   bool _isEraser = false;
@@ -69,6 +83,43 @@ class _DrawingScreenState extends State<DrawingScreen> {
     }
   }
 
+  Future<void> _pickColor() async {
+    final selectedColor = await showDialog<Color>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Choose a color'),
+        content: Wrap(
+          spacing: 12,
+          runSpacing: 12,
+          children: [
+            for (final color in _palette)
+              Semantics(
+                button: true,
+                label: 'Color swatch',
+                child: InkWell(
+                  onTap: () => Navigator.pop(context, color),
+                  borderRadius: BorderRadius.circular(30),
+                  child: CircleAvatar(
+                    backgroundColor: color,
+                    radius: 22,
+                    child: _color == color
+                        ? Icon(Icons.check,
+                            color: color.computeLuminance() > .5
+                                ? Colors.black
+                                : Colors.white)
+                        : null,
+                  ),
+                ),
+              ),
+          ],
+        ),
+      ),
+    );
+    if (selectedColor != null && mounted) {
+      setState(() => _color = selectedColor);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final colors = [
@@ -105,7 +156,7 @@ class _DrawingScreenState extends State<DrawingScreen> {
             const SizedBox(height: 16),
             Row(
               children: [
-                for (final color in colors)
+                for (final color in colors.take(4))
                   Padding(
                     padding: const EdgeInsets.only(right: 10),
                     child: InkWell(
@@ -120,20 +171,35 @@ class _DrawingScreenState extends State<DrawingScreen> {
                   ),
                 const Spacer(),
                 IconButton.filledTonal(
+                  onPressed: _pickColor,
+                  icon: const Icon(Icons.palette_outlined),
+                  tooltip: 'Choose a color',
+                ),
+                const SizedBox(width: 8),
+                IconButton.filledTonal(
                   onPressed: () => setState(() => _isEraser = !_isEraser),
                   icon: Icon(_isEraser ? Icons.brush : Icons.auto_fix_high),
                   tooltip: _isEraser ? 'Use brush' : 'Use eraser',
                 ),
                 const SizedBox(width: 8),
-                SegmentedButton<double>(
-                  segments: const [
-                    ButtonSegment(value: 4, label: Text('S')),
-                    ButtonSegment(value: 8, label: Text('M')),
-                    ButtonSegment(value: 16, label: Text('L'))
-                  ],
-                  selected: {_width},
-                  onSelectionChanged: (value) =>
-                      setState(() => _width = value.first),
+              ],
+            ),
+            Row(
+              children: [
+                const Icon(Icons.brush_outlined, size: 20),
+                Expanded(
+                  child: Slider(
+                    value: _width,
+                    min: 2,
+                    max: 32,
+                    divisions: 15,
+                    label: '${_width.round()} px',
+                    onChanged: (value) => setState(() => _width = value),
+                  ),
+                ),
+                SizedBox(
+                  width: 44,
+                  child: Text('${_width.round()} px', textAlign: TextAlign.end),
                 ),
               ],
             ),

@@ -37,4 +37,21 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.text('Clear drawing?'), findsNothing);
   });
+
+  testWidgets('color picker and brush size controls are available',
+      (WidgetTester tester) async {
+    await tester.pumpWidget(const PocketCanvasApp());
+    await tester.tap(find.text('Start drawing'));
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.byTooltip('Choose a color'));
+    await tester.pumpAndSettle();
+    expect(find.text('Choose a color'), findsOneWidget);
+    expect(find.bySemanticsLabel('Color swatch'), findsWidgets);
+
+    await tester.tap(find.bySemanticsLabel('Color swatch').first);
+    await tester.pumpAndSettle();
+    expect(find.text('Choose a color'), findsNothing);
+    expect(find.byType(Slider), findsOneWidget);
+  });
 }
