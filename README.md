@@ -12,6 +12,8 @@ A small Flutter/Dart drawing app for Android and other Flutter platforms.
   background with a sun and hills.
 - **Custom app icon:** Complete. Android uses the Pocket Canvas canvas-and-brush icon
   in `android/app/src/main/res/drawable/ic_pocket_canvas.xml`.
+- **Local storage:** Complete. Save and Load store drawing strokes on the device using
+  local preferences, and saved work is restored when the drawing screen opens.
 
 ## Stretch challenge
 

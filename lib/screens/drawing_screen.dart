@@ -1,4 +1,7 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../models/drawing_stroke.dart';
 import '../widgets/drawing_canvas.dart';
@@ -11,6 +14,7 @@ class DrawingScreen extends StatefulWidget {
 }
 
 class _DrawingScreenState extends State<DrawingScreen> {
+  static const _savedDrawingKey = 'pocket_canvas.saved_drawing';
   final List<DrawingStroke> _strokes = [];
   final List<DrawingStroke> _redoStrokes = [];
   static const _palette = [
@@ -30,6 +34,12 @@ class _DrawingScreenState extends State<DrawingScreen> {
   Color _color = const Color(0xff352f75);
   double _width = 8;
   bool _isEraser = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadDrawing(showMessage: false);
+  }
 
   void _startStroke(Offset point) {
     _redoStrokes.clear();
@@ -83,6 +93,48 @@ class _DrawingScreenState extends State<DrawingScreen> {
     }
   }
 
+  Future<void> _saveDrawing() async {
+    final preferences = await SharedPreferences.getInstance();
+    await preferences.setString(
+      _savedDrawingKey,
+      jsonEncode(_strokes.map((stroke) => stroke.toJson()).toList()),
+    );
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Drawing saved on this device.')),
+    );
+  }
+
+  Future<void> _loadDrawing({bool showMessage = true}) async {
+    final preferences = await SharedPreferences.getInstance();
+    final savedDrawing = preferences.getString(_savedDrawingKey);
+    if (savedDrawing == null || savedDrawing.isEmpty || !mounted) return;
+    try {
+      final decoded = jsonDecode(savedDrawing) as List<dynamic>;
+      final restoredStrokes = [
+        for (final stroke in decoded)
+          DrawingStroke.fromJson(stroke as Map<String, dynamic>),
+      ];
+      setState(() {
+        _strokes
+          ..clear()
+          ..addAll(restoredStrokes);
+        _redoStrokes.clear();
+      });
+      if (showMessage) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Saved drawing loaded.')),
+        );
+      }
+    } on FormatException {
+      if (showMessage) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('The saved drawing could not be read.')),
+        );
+      }
+    }
+  }
+
   Future<void> _pickColor() async {
     final selectedColor = await showDialog<Color>(
       context: context,
@@ -130,6 +182,14 @@ class _DrawingScreenState extends State<DrawingScreen> {
     ];
     return Scaffold(
       appBar: AppBar(title: const Text('New drawing'), actions: [
+        IconButton(
+            onPressed: _saveDrawing,
+            icon: const Icon(Icons.save_outlined),
+            tooltip: 'Save drawing'),
+        IconButton(
+            onPressed: _loadDrawing,
+            icon: const Icon(Icons.folder_open_outlined),
+            tooltip: 'Load drawing'),
         IconButton(
             onPressed: _strokes.isEmpty ? null : _undo,
             icon: const Icon(Icons.undo),
