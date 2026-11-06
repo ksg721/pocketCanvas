@@ -12,11 +12,13 @@ class DrawingScreen extends StatefulWidget {
 
 class _DrawingScreenState extends State<DrawingScreen> {
   final List<DrawingStroke> _strokes = [];
+  final List<DrawingStroke> _redoStrokes = [];
   Color _color = const Color(0xff352f75);
   double _width = 8;
   bool _isEraser = false;
 
   void _startStroke(Offset point) {
+    _redoStrokes.clear();
     setState(() => _strokes.add(DrawingStroke(
           points: [point],
           color: _color,
@@ -30,11 +32,41 @@ class _DrawingScreenState extends State<DrawingScreen> {
     setState(() => _strokes.last.points.add(point));
   }
 
-  void _clear() => setState(_strokes.clear);
-
   void _undo() {
     if (_strokes.isEmpty) return;
-    setState(() => _strokes.removeLast());
+    setState(() => _redoStrokes.add(_strokes.removeLast()));
+  }
+
+  void _redo() {
+    if (_redoStrokes.isEmpty) return;
+    setState(() => _strokes.add(_redoStrokes.removeLast()));
+  }
+
+  Future<void> _confirmClear() async {
+    if (_strokes.isEmpty) return;
+    final shouldClear = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Clear drawing?'),
+        content: const Text('This will remove all strokes from the canvas.'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Cancel'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text('Clear'),
+          ),
+        ],
+      ),
+    );
+    if (shouldClear == true && mounted) {
+      setState(() {
+        _strokes.clear();
+        _redoStrokes.clear();
+      });
+    }
   }
 
   @override
@@ -48,9 +80,15 @@ class _DrawingScreenState extends State<DrawingScreen> {
     return Scaffold(
       appBar: AppBar(title: const Text('New drawing'), actions: [
         IconButton(
-            onPressed: _undo, icon: const Icon(Icons.undo), tooltip: 'Undo'),
+            onPressed: _strokes.isEmpty ? null : _undo,
+            icon: const Icon(Icons.undo),
+            tooltip: 'Undo'),
         IconButton(
-            onPressed: _clear,
+            onPressed: _redoStrokes.isEmpty ? null : _redo,
+            icon: const Icon(Icons.redo),
+            tooltip: 'Redo'),
+        IconButton(
+            onPressed: _strokes.isEmpty ? null : _confirmClear,
             icon: const Icon(Icons.delete_outline),
             tooltip: 'Clear')
       ]),
