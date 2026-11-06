@@ -17,7 +17,7 @@ class DrawingStroke {
         'points': [
           for (final point in points) {'x': point.dx, 'y': point.dy},
         ],
-        'color': color.value,
+        'color': color.toARGB32(),
         'width': width,
         'isEraser': isEraser,
       };
