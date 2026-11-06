@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'drawing_screen.dart';
+import 'gallery_screen.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -46,6 +47,15 @@ class HomeScreen extends StatelessWidget {
                   ),
                   icon: const Icon(Icons.brush_rounded),
                   label: const Text('Start drawing'),
+                ),
+                const SizedBox(height: 12),
+                OutlinedButton.icon(
+                  onPressed: () => Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (_) => const GalleryScreen()),
+                  ),
+                  icon: const Icon(Icons.photo_library_outlined),
+                  label: const Text('View gallery'),
                 ),
               ],
             ),

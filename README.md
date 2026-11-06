@@ -16,6 +16,8 @@ A small Flutter/Dart drawing app for Android and other Flutter platforms.
   local preferences, and saved work is restored when the drawing screen opens.
 - **PNG export:** Complete. The canvas can be rendered as a PNG and shared or saved
   through the device share sheet.
+- **Gallery:** Complete. Saved drawings appear in a gallery where they can be opened,
+  renamed, or deleted.
 
 ## Stretch challenge
 

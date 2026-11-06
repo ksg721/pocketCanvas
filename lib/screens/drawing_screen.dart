@@ -8,10 +8,13 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:share_plus/share_plus.dart';
 
 import '../models/drawing_stroke.dart';
+import '../models/saved_drawing.dart';
 import '../widgets/drawing_canvas.dart';
 
 class DrawingScreen extends StatefulWidget {
-  const DrawingScreen({super.key});
+  const DrawingScreen({super.key, this.initialDrawing});
+
+  final SavedDrawing? initialDrawing;
 
   @override
   State<DrawingScreen> createState() => _DrawingScreenState();
@@ -43,7 +46,11 @@ class _DrawingScreenState extends State<DrawingScreen> {
   @override
   void initState() {
     super.initState();
-    _loadDrawing(showMessage: false);
+    if (widget.initialDrawing != null) {
+      _strokes.addAll(widget.initialDrawing!.strokes);
+    } else {
+      _loadDrawing(showMessage: false);
+    }
   }
 
   void _startStroke(Offset point) {
@@ -100,13 +107,31 @@ class _DrawingScreenState extends State<DrawingScreen> {
 
   Future<void> _saveDrawing() async {
     final preferences = await SharedPreferences.getInstance();
+    final savedDrawing = SavedDrawing(
+      id: DateTime.now().microsecondsSinceEpoch.toString(),
+      name: 'Drawing ${DateTime.now().month}/${DateTime.now().day}',
+      createdAt: DateTime.now(),
+      strokes: List.of(_strokes),
+    );
+    final existing = preferences.getString('pocket_canvas.saved_drawings');
+    final drawings = existing == null || existing.isEmpty
+        ? <SavedDrawing>[]
+        : [
+            for (final drawing in jsonDecode(existing) as List<dynamic>)
+              SavedDrawing.fromJson(drawing as Map<String, dynamic>),
+          ];
+    drawings.insert(0, savedDrawing);
+    await preferences.setString(
+      'pocket_canvas.saved_drawings',
+      jsonEncode(drawings.map((drawing) => drawing.toJson()).toList()),
+    );
     await preferences.setString(
       _savedDrawingKey,
       jsonEncode(_strokes.map((stroke) => stroke.toJson()).toList()),
     );
     if (!mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Drawing saved on this device.')),
+      const SnackBar(content: Text('Drawing saved to your gallery.')),
     );
   }
 
