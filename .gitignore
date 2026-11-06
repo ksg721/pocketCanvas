@@ -1,6 +1,5 @@
 # Miscellaneous
 *.class
-*.lock
 *.log
 *.pyc
 *.swp
@@ -49,6 +48,8 @@ unlinked_spec.ds
 # Android related
 **/android/**/gradle-wrapper.jar
 .gradle/
+**/android/.cxx/
+**/android/**/.cxx/
 **/android/captures/
 **/android/gradlew
 **/android/gradlew.bat
@@ -99,6 +100,11 @@ unlinked_spec.ds
 **/windows/flutter/generated_plugin_registrant.h
 **/windows/flutter/generated_plugins.cmake
 
+# IDE metadata and generated project modules
+.idea/
+*.iml
+.fleet/
+
 # Linux
 **/linux/flutter/generated_plugin_registrant.cc
 **/linux/flutter/generated_plugin_registrant.h
@@ -111,9 +117,12 @@ coverage/
 app.*.symbols
 
 # Exceptions to above rules.
+!pubspec.lock
 !**/ios/**/default.mode1v3
 !**/ios/**/default.mode2v3
 !**/ios/**/default.pbxuser
 !**/ios/**/default.perspectivev3
 !/packages/flutter_tools/test/data/dart_dependencies_test/**/.packages
 !/dev/ci/**/Gemfile.lock
+# Local Flutter SDK installed for this project.
+tools/flutter/
