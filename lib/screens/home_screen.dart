@@ -16,14 +16,18 @@ class HomeScreen extends StatelessWidget {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Container(
-                  padding: const EdgeInsets.all(22),
-                  decoration: BoxDecoration(
-                    color: colors.primaryContainer,
-                    shape: BoxShape.circle,
+                Semantics(
+                  label: 'Pocket Canvas illustration',
+                  image: true,
+                  child: Container(
+                    padding: const EdgeInsets.all(22),
+                    decoration: BoxDecoration(
+                      color: colors.primaryContainer,
+                      shape: BoxShape.circle,
+                    ),
+                    child: Icon(Icons.palette_rounded,
+                        size: 64, color: colors.primary),
                   ),
-                  child: Icon(Icons.palette_rounded,
-                      size: 64, color: colors.primary),
                 ),
                 const SizedBox(height: 24),
                 Text('Pocket Canvas',

@@ -1,8 +1,6 @@
 {
   "dart.flutterSdkPath": "C:/Users/ksg72/Documents/cse310/pocketCanvas/tools/flutter",
-  "dart.analysisExcludedFolders": [
-    "${workspaceFolder}/tools/flutter"
-  ],
+  "dart.analysisExcludedFolders": ["${workspaceFolder}/tools/flutter"],
   "files.exclude": {
     "**/tools/flutter": true
   },
@@ -13,5 +11,6 @@
   "editor.formatOnSave": true,
   "[dart]": {
     "editor.defaultFormatter": "Dart-Code.dart-code"
-  }
+  },
+  "java.compile.nullAnalysis.mode": "automatic"
 }

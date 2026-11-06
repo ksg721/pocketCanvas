@@ -1,17 +1,29 @@
-# pocket_canvas
+# Pocket Canvas
 
-A new Flutter project.
+A small Flutter/Dart drawing app for Android and other Flutter platforms.
 
-## Getting Started
+## Requirements checklist
 
-This project is a starting point for a Flutter application.
+- **At least one screen:** Complete. The app has a home screen and a drawing screen.
+- **User input:** Complete. Users tap buttons and draw with touch or mouse gestures.
+- **Display changes after input:** Complete. Strokes appear on the canvas, and colors,
+  brush sizes, eraser mode, undo, and clear update the display.
+- **Display a picture:** Complete. The drawing screen includes an illustrated picture
+  background with a sun and hills.
+- **Custom app icon:** Complete. Android uses the Pocket Canvas canvas-and-brush icon
+  in `android/app/src/main/res/drawable/ic_pocket_canvas.xml`.
 
-A few resources to get you started if this is your first Flutter project:
+## Stretch challenge
 
-- [Learn Flutter](https://docs.flutter.dev/get-started/learn-flutter)
-- [Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Flutter learning resources](https://docs.flutter.dev/reference/learning-resources)
+Complete: the app incorporates two screens. Tapping **Start drawing** navigates from
+the home screen to the drawing screen.
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+## Run the app
+
+1. Open this folder in Android Studio or VS Code.
+2. Select an Android emulator or connected Android phone.
+3. Run `flutter pub get`.
+4. Run `flutter run`.
+
+The Android application label is **Pocket Canvas** and its launcher icon is configured
+in `android/app/src/main/AndroidManifest.xml`.
