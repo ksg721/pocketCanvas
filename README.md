@@ -14,6 +14,8 @@ A small Flutter/Dart drawing app for Android and other Flutter platforms.
   in `android/app/src/main/res/drawable/ic_pocket_canvas.xml`.
 - **Local storage:** Complete. Save and Load store drawing strokes on the device using
   local preferences, and saved work is restored when the drawing screen opens.
+- **PNG export:** Complete. The canvas can be rendered as a PNG and shared or saved
+  through the device share sheet.
 
 ## Stretch challenge
 

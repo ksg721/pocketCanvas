@@ -1,7 +1,11 @@
 import 'dart:convert';
+import 'dart:ui' as ui;
 
+import 'package:cross_file/cross_file.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:share_plus/share_plus.dart';
 
 import '../models/drawing_stroke.dart';
 import '../widgets/drawing_canvas.dart';
@@ -15,6 +19,7 @@ class DrawingScreen extends StatefulWidget {
 
 class _DrawingScreenState extends State<DrawingScreen> {
   static const _savedDrawingKey = 'pocket_canvas.saved_drawing';
+  final _canvasKey = GlobalKey();
   final List<DrawingStroke> _strokes = [];
   final List<DrawingStroke> _redoStrokes = [];
   static const _palette = [
@@ -135,6 +140,27 @@ class _DrawingScreenState extends State<DrawingScreen> {
     }
   }
 
+  Future<void> _exportDrawing() async {
+    final renderObject = _canvasKey.currentContext?.findRenderObject();
+    if (renderObject is! RenderRepaintBoundary) return;
+    final image = await renderObject.toImage(pixelRatio: 3);
+    final byteData = await image.toByteData(format: ui.ImageByteFormat.png);
+    if (byteData == null || !mounted) return;
+    final pngBytes = byteData.buffer.asUint8List();
+    final result = await SharePlus.instance.share(
+      ShareParams(
+        title: 'Pocket Canvas drawing',
+        text: 'My Pocket Canvas drawing',
+        files: [XFile.fromData(pngBytes, mimeType: 'image/png')],
+        fileNameOverrides: ['pocket_canvas.png'],
+      ),
+    );
+    if (!mounted || result.status == ShareResultStatus.dismissed) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Drawing exported as a PNG.')),
+    );
+  }
+
   Future<void> _pickColor() async {
     final selectedColor = await showDialog<Color>(
       context: context,
@@ -191,6 +217,10 @@ class _DrawingScreenState extends State<DrawingScreen> {
             icon: const Icon(Icons.folder_open_outlined),
             tooltip: 'Load drawing'),
         IconButton(
+            onPressed: _exportDrawing,
+            icon: const Icon(Icons.ios_share_outlined),
+            tooltip: 'Export drawing'),
+        IconButton(
             onPressed: _strokes.isEmpty ? null : _undo,
             icon: const Icon(Icons.undo),
             tooltip: 'Undo'),
@@ -208,11 +238,14 @@ class _DrawingScreenState extends State<DrawingScreen> {
         child: Column(
           children: [
             Expanded(
-                child: DrawingCanvas(
-                    strokes: _strokes,
-                    onStart: _startStroke,
-                    onUpdate: _updateStroke,
-                    onEnd: () {})),
+                child: RepaintBoundary(
+              key: _canvasKey,
+              child: DrawingCanvas(
+                  strokes: _strokes,
+                  onStart: _startStroke,
+                  onUpdate: _updateStroke,
+                  onEnd: () {}),
+            )),
             const SizedBox(height: 16),
             Row(
               children: [
