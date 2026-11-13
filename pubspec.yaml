@@ -10,6 +10,7 @@ dependencies:
   flutter:
     sdk: flutter
   cross_file: ^0.3.4+2
+  flutter_color_wheel_picker: ^0.2.0
   shared_preferences: ^2.3.3
   share_plus: ^13.3.1
 

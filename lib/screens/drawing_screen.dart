@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart';
+import 'package:flutter_color_wheel_picker/flutter_color_wheel_picker.dart';
 import 'package:flutter/rendering.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:share_plus/share_plus.dart';
@@ -25,7 +26,7 @@ class _DrawingScreenState extends State<DrawingScreen> {
   final _canvasKey = GlobalKey();
   final List<DrawingStroke> _strokes = [];
   final List<DrawingStroke> _redoStrokes = [];
-  static const _palette = [
+  static const _quickColors = [
     Color(0xff352f75),
     Color(0xff1f3a5f),
     Color(0xff147d92),
@@ -37,7 +38,6 @@ class _DrawingScreenState extends State<DrawingScreen> {
     Color(0xff9c4dcc),
     Color(0xff5f6caf),
     Color(0xff222222),
-    Color(0xfff7f4ef),
   ];
   Color _color = const Color(0xff352f75);
   double _width = 8;
@@ -240,37 +240,31 @@ class _DrawingScreenState extends State<DrawingScreen> {
   }
 
   Future<void> _pickColor() async {
+    final controller = ColorPickerController(initialColor: _color);
     final selectedColor = await showDialog<Color>(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Choose a color'),
-        content: Wrap(
-          spacing: 12,
-          runSpacing: 12,
-          children: [
-            for (final color in _palette)
-              Semantics(
-                button: true,
-                label: 'Color swatch',
-                child: InkWell(
-                  onTap: () => Navigator.pop(context, color),
-                  borderRadius: BorderRadius.circular(30),
-                  child: CircleAvatar(
-                    backgroundColor: color,
-                    radius: 22,
-                    child: _color == color
-                        ? Icon(Icons.check,
-                            color: color.computeLuminance() > .5
-                                ? Colors.black
-                                : Colors.white)
-                        : null,
-                  ),
-                ),
-              ),
-          ],
+      builder: (dialogContext) => AlertDialog(
+        title: const Text('Choose a custom color'),
+        content: SingleChildScrollView(
+          child: ColorWheelPicker(
+            controller: controller,
+            size: 240,
+            semanticLabel: 'Custom color wheel',
+          ),
         ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(dialogContext),
+            child: const Text('Cancel'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.pop(dialogContext, controller.color),
+            child: const Text('Apply'),
+          ),
+        ],
       ),
     );
+    controller.dispose();
     if (selectedColor != null && mounted) {
       setState(() => _color = selectedColor);
     }
@@ -278,12 +272,6 @@ class _DrawingScreenState extends State<DrawingScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final colors = [
-      Colors.indigo.shade900,
-      Colors.pink.shade400,
-      Colors.teal.shade700,
-      Colors.amber.shade800
-    ];
     return Scaffold(
       appBar: AppBar(title: const Text('New drawing'), actions: [
         IconButton(
@@ -330,21 +318,36 @@ class _DrawingScreenState extends State<DrawingScreen> {
                   background: _background),
             )),
             const SizedBox(height: 16),
-            Row(
+            Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              alignment: WrapAlignment.center,
               children: [
-                for (final color in colors.take(4))
-                  Padding(
-                    padding: const EdgeInsets.only(right: 10),
+                for (var index = 0; index < _quickColors.length; index++)
+                  Semantics(
+                    button: true,
+                    label: 'Preset color ${index + 1}',
                     child: InkWell(
-                      onTap: () => setState(() => _color = color),
+                      onTap: () => setState(() => _color = _quickColors[index]),
                       borderRadius: BorderRadius.circular(30),
                       child: CircleAvatar(
-                          backgroundColor: color,
-                          child: _color == color
-                              ? const Icon(Icons.check, color: Colors.white)
-                              : null),
+                        radius: 20,
+                        backgroundColor: _quickColors[index],
+                        child: _color == _quickColors[index]
+                            ? Icon(Icons.check,
+                                color:
+                                    _quickColors[index].computeLuminance() > .5
+                                        ? Colors.black
+                                        : Colors.white)
+                            : null,
+                      ),
                     ),
                   ),
+              ],
+            ),
+            const SizedBox(height: 12),
+            Row(
+              children: [
                 const Spacer(),
                 IconButton.filledTonal(
                   onPressed: _pickColor,

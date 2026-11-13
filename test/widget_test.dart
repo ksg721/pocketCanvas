@@ -1,5 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_color_wheel_picker/flutter_color_wheel_picker.dart';
 
 import 'package:pocket_canvas/main.dart';
 import 'package:pocket_canvas/widgets/drawing_canvas.dart';
@@ -38,7 +39,8 @@ void main() {
     expect(find.text('Clear drawing?'), findsNothing);
   });
 
-  testWidgets('color picker and brush size controls are available',
+  testWidgets(
+      'preset colors, color wheel, and brush size controls are available',
       (WidgetTester tester) async {
     await tester.pumpWidget(const PocketCanvasApp());
     await tester.tap(find.text('Start drawing'));
@@ -46,12 +48,14 @@ void main() {
 
     await tester.tap(find.byTooltip('Choose a color'));
     await tester.pumpAndSettle();
-    expect(find.text('Choose a color'), findsOneWidget);
-    expect(find.bySemanticsLabel('Color swatch'), findsWidgets);
+    expect(find.text('Choose a custom color'), findsOneWidget);
+    expect(find.byType(ColorWheelPicker), findsOneWidget);
 
-    await tester.tap(find.bySemanticsLabel('Color swatch').first);
+    await tester.tap(find.text('Apply'));
     await tester.pumpAndSettle();
-    expect(find.text('Choose a color'), findsNothing);
+    expect(find.text('Choose a custom color'), findsNothing);
+    expect(find.bySemanticsLabel('Preset color 1'), findsOneWidget);
+    expect(find.bySemanticsLabel('Preset color 10'), findsOneWidget);
     expect(find.byType(Slider), findsOneWidget);
   });
 

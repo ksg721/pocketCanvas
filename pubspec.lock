@@ -118,6 +118,14 @@ packages:
     description: flutter
     source: sdk
     version: "0.0.0"
+  flutter_color_wheel_picker:
+    dependency: "direct main"
+    description:
+      name: flutter_color_wheel_picker
+      sha256: "878039fb2bd8129be9602b2011a27fc5963f2595c81fcad11ea2efb3df5693bf"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.2.0"
   flutter_lints:
     dependency: "direct dev"
     description:
