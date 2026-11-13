@@ -7,6 +7,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:share_plus/share_plus.dart';
 
 import '../models/drawing_stroke.dart';
+import '../models/canvas_background.dart';
 import '../models/saved_drawing.dart';
 import '../widgets/drawing_canvas.dart';
 
@@ -41,12 +42,14 @@ class _DrawingScreenState extends State<DrawingScreen> {
   Color _color = const Color(0xff352f75);
   double _width = 8;
   bool _isEraser = false;
+  CanvasBackground _background = CanvasBackground.blank;
 
   @override
   void initState() {
     super.initState();
     if (widget.initialDrawing != null) {
       _strokes.addAll(widget.initialDrawing!.strokes);
+      _background = widget.initialDrawing!.background;
     } else {
       _loadDrawing(showMessage: false);
     }
@@ -111,6 +114,7 @@ class _DrawingScreenState extends State<DrawingScreen> {
       name: 'Drawing ${DateTime.now().month}/${DateTime.now().day}',
       createdAt: DateTime.now(),
       strokes: List.of(_strokes),
+      background: _background,
     );
     final existing = preferences.getString('pocket_canvas.saved_drawings');
     final drawings = existing == null || existing.isEmpty
@@ -161,6 +165,56 @@ class _DrawingScreenState extends State<DrawingScreen> {
           const SnackBar(content: Text('The saved drawing could not be read.')),
         );
       }
+    }
+  }
+
+  Future<void> _pickBackground() async {
+    final selected = await showDialog<CanvasBackground>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Choose an image'),
+        content: SizedBox(
+          width: 360,
+          child: Wrap(
+            spacing: 12,
+            runSpacing: 12,
+            children: [
+              for (final background in CanvasBackground.values)
+                SizedBox(
+                  width: 150,
+                  child: InkWell(
+                    onTap: () => Navigator.pop(context, background),
+                    borderRadius: BorderRadius.circular(16),
+                    child: Column(
+                      children: [
+                        AspectRatio(
+                          aspectRatio: 1.5,
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.circular(16),
+                            child: DrawingCanvas(
+                              strokes: const [],
+                              background: background,
+                              onStart: (_) {},
+                              onUpdate: (_) {},
+                              onEnd: () {},
+                            ),
+                          ),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.all(8),
+                          child: Text(background.label),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+            ],
+          ),
+        ),
+      ),
+    );
+    if (selected != null && mounted) {
+      setState(() => _background = selected);
     }
   }
 
@@ -245,6 +299,10 @@ class _DrawingScreenState extends State<DrawingScreen> {
             icon: const Icon(Icons.ios_share_outlined),
             tooltip: 'Export drawing'),
         IconButton(
+            onPressed: _pickBackground,
+            icon: const Icon(Icons.image_outlined),
+            tooltip: 'Choose an image'),
+        IconButton(
             onPressed: _strokes.isEmpty ? null : _undo,
             icon: const Icon(Icons.undo),
             tooltip: 'Undo'),
@@ -268,7 +326,8 @@ class _DrawingScreenState extends State<DrawingScreen> {
                   strokes: _strokes,
                   onStart: _startStroke,
                   onUpdate: _updateStroke,
-                  onEnd: () {}),
+                  onEnd: () {},
+                  background: _background),
             )),
             const SizedBox(height: 16),
             Row(

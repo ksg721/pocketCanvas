@@ -1,4 +1,5 @@
 import 'drawing_stroke.dart';
+import 'canvas_background.dart';
 
 class SavedDrawing {
   const SavedDrawing({
@@ -6,18 +7,21 @@ class SavedDrawing {
     required this.name,
     required this.createdAt,
     required this.strokes,
+    this.background = CanvasBackground.blank,
   });
 
   final String id;
   final String name;
   final DateTime createdAt;
   final List<DrawingStroke> strokes;
+  final CanvasBackground background;
 
   Map<String, dynamic> toJson() => {
         'id': id,
         'name': name,
         'createdAt': createdAt.toIso8601String(),
         'strokes': [for (final stroke in strokes) stroke.toJson()],
+        'background': background.name,
       };
 
   factory SavedDrawing.fromJson(Map<String, dynamic> json) => SavedDrawing(
@@ -28,6 +32,10 @@ class SavedDrawing {
           for (final stroke in json['strokes'] as List<dynamic>)
             DrawingStroke.fromJson(stroke as Map<String, dynamic>),
         ],
+        background: CanvasBackground.values.firstWhere(
+          (background) => background.name == json['background'],
+          orElse: () => CanvasBackground.blank,
+        ),
       );
 
   SavedDrawing copyWith({String? name}) => SavedDrawing(

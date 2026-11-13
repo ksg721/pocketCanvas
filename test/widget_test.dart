@@ -54,4 +54,20 @@ void main() {
     expect(find.text('Choose a color'), findsNothing);
     expect(find.byType(Slider), findsOneWidget);
   });
+
+  testWidgets('blank is the default and image chooser is available',
+      (WidgetTester tester) async {
+    await tester.pumpWidget(const PocketCanvasApp());
+    await tester.tap(find.text('Start drawing'));
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.byTooltip('Choose an image'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Choose an image'), findsOneWidget);
+    expect(find.text('Blank'), findsOneWidget);
+    expect(find.text('Sunset'), findsOneWidget);
+    expect(find.text('Mountains'), findsOneWidget);
+    expect(find.text('Garden'), findsOneWidget);
+  });
 }

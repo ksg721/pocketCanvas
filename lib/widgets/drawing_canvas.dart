@@ -1,17 +1,20 @@
 import 'package:flutter/material.dart';
 
 import '../models/drawing_stroke.dart';
+import '../models/canvas_background.dart';
 import 'picture_background.dart';
 
 class DrawingCanvas extends StatelessWidget {
   const DrawingCanvas(
       {super.key,
       required this.strokes,
+      this.background = CanvasBackground.blank,
       required this.onStart,
       required this.onUpdate,
       required this.onEnd});
 
   final List<DrawingStroke> strokes;
+  final CanvasBackground background;
   final ValueChanged<Offset> onStart;
   final ValueChanged<Offset> onUpdate;
   final VoidCallback onEnd;
@@ -22,7 +25,7 @@ class DrawingCanvas extends StatelessWidget {
       borderRadius: BorderRadius.circular(24),
       child: Stack(
         children: [
-          const PictureBackground(),
+          PictureBackground(background: background),
           GestureDetector(
             onPanStart: (details) => onStart(details.localPosition),
             onPanUpdate: (details) => onUpdate(details.localPosition),

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:pocket_canvas/models/drawing_stroke.dart';
 import 'package:pocket_canvas/models/saved_drawing.dart';
+import 'package:pocket_canvas/models/canvas_background.dart';
 
 void main() {
   test('saved drawings serialize their metadata and strokes', () {
@@ -16,6 +17,7 @@ void main() {
           width: 6,
         ),
       ],
+      background: CanvasBackground.mountains,
     );
 
     final restored = SavedDrawing.fromJson(original.toJson());
@@ -24,5 +26,6 @@ void main() {
     expect(restored.name, original.name);
     expect(restored.createdAt, original.createdAt);
     expect(restored.strokes.single.points, original.strokes.single.points);
+    expect(restored.background, CanvasBackground.mountains);
   });
 }

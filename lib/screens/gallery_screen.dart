@@ -187,6 +187,7 @@ class _DrawingCard extends StatelessWidget {
                 padding: const EdgeInsets.all(8),
                 child: DrawingCanvas(
                   strokes: drawing.strokes,
+                  background: drawing.background,
                   onStart: (_) {},
                   onUpdate: (_) {},
                   onEnd: () {},
